@@ -1,0 +1,37 @@
+---
+# Auditd - CIS 4.1
+
+- name: Auditd | Install auditd packages
+  ansible.builtin.apt:
+    name:
+      - auditd
+      - audispd-plugins
+    state: present
+
+- name: Auditd | Configure auditd.conf
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^\s*{{ item.key }}\s*='
+    line: '{{ item.key }} = {{ item.value }}'
+  loop:
+    - { key: 'max_log_file',              value: '8' }
+    - { key: 'num_logs',                  value: '5' }
+    - { key: 'max_log_file_action',       value: 'keep_logs' }
+    - { key: 'space_left_action',         value: 'email' }
+    - { key: 'admin_space_left_action',   value: 'halt' }
+  notify: Restart auditd
+
+- name: Auditd | Deploy CIS audit rules
+  ansible.builtin.copy:
+    src: auditd.rules
+    dest: /etc/audit/rules.d/cis.rules
+    owner: root
+    group: root
+    mode: '0640'
+  notify: Restart auditd
+
+- name: Auditd | Enable and start service
+  ansible.builtin.service:
+    name: auditd
+    enabled: true
+    state: started

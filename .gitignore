@@ -1,0 +1,25 @@
+# Ansible
+*.retry
+*.log
+.vault_pass
+vault_pass.txt
+
+# Rapports de conformité (générés localement)
+before.txt
+after.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db

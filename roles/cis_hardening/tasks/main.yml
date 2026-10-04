@@ -1,0 +1,25 @@
+---
+- name: Verify the target is a supported Debian family system
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family == "Debian"
+    fail_msg: "This role targets Debian and Ubuntu. Detected: {{ ansible_os_family }}"
+
+- name: Apply SSH hardening
+  ansible.builtin.import_tasks: ssh.yml
+  when: cis_ssh_hardening | bool
+- name: Apply kernel hardening
+  ansible.builtin.import_tasks: kernel.yml
+  when: cis_kernel_hardening | bool
+- name: Include filesystem hardening
+  ansible.builtin.include_tasks: filesystem.yml
+- name: Include password policy hardening
+  ansible.builtin.include_tasks: password.yml
+- name: Include auditd hardening
+  ansible.builtin.include_tasks: auditd.yml
+
+- name: Include firewall hardening
+  ansible.builtin.include_tasks: firewall.yml
+
+- name: Include banner hardening
+  ansible.builtin.include_tasks: banner.yml

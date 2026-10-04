@@ -1,0 +1,27 @@
+---
+# Banner - CIS 1.8
+
+- name: Banner | Deploy /etc/issue banner
+  ansible.builtin.copy:
+    dest: /etc/issue
+    content: |
+      *************************************************
+      *        ACCES RESERVE - SYSTEME DURCI CIS      *
+      *  Toute activite est surveillee et enregistree *
+      *  Deconnexion immediate si non autorisee       *
+      *************************************************
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Banner | Deploy /etc/issue.net banner
+  ansible.builtin.copy:
+    dest: /etc/issue.net
+    content: |
+      *************************************************
+      *        ACCES RESERVE - SYSTEME DURCI CIS      *
+      *  Toute activite est surveillee et enregistree *
+      *************************************************
+    owner: root
+    group: root
+    mode: '0644'

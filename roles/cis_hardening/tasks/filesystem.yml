@@ -1,0 +1,33 @@
+---
+# Filesystem Hardening - CIS 1.1.x
+
+- name: Filesystem | Harden /tmp mount options
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^\S+\s+/tmp\s'
+    line: 'tmpfs /tmp tmpfs rw,nosuid,nodev,noexec 0 0'
+    create: true
+
+- name: Filesystem | Apply /tmp options immediately
+  ansible.builtin.command: mount -o remount,nosuid,nodev,noexec /tmp
+
+- name: Filesystem | Create /var/tmp bind mount entry
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^\S+\s+/var/tmp\s'
+    line: '/tmp /var/tmp none bind,nosuid,nodev,noexec 0 0'
+    create: true
+
+- name: Filesystem | Apply /var/tmp bind mount
+  ansible.builtin.command: mount /var/tmp
+  ignore_errors: true
+
+- name: Filesystem | Harden /dev/shm mount options
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^\S+\s+/dev/shm\s'
+    line: 'tmpfs /dev/shm tmpfs rw,nosuid,nodev,noexec 0 0'
+    create: true
+
+- name: Filesystem | Apply /dev/shm options immediately
+  ansible.builtin.command: mount -o remount,nosuid,nodev,noexec /dev/shm

@@ -1,0 +1,31 @@
+---
+- name: SSH | Backup original configuration
+  ansible.builtin.copy:
+    src: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config.pre-hardening
+    remote_src: true
+    force: false
+  tags: [ssh, backup]
+
+- name: SSH | Set permissions on sshd_config
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+  tags: [ssh, permissions]
+
+- name: SSH | Apply hardened configuration
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*{{ item.key }}\s'
+    line: "{{ item.key }} {{ item.value }}"
+    state: present
+    validate: '/usr/sbin/sshd -t -f %s'
+  loop:
+    - { key: 'PermitRootLogin',        value: 'no' }
+    - { key: 'PasswordAuthentication', value: 'no' }
+    - { key: 'PermitEmptyPasswords',   value: 'no' }
+    - { key: 'MaxAuthTries',           value: '4' }
+    - { key: 'X11Forwarding',           value: 'no' }
+  tags: [ssh]

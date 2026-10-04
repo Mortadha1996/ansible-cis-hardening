@@ -1,0 +1,8 @@
+---
+cis_ssh_hardening: true
+cis_kernel_hardening: true
+cis_filesystem_hardening: true
+cis_password_policy: true
+cis_auditd: true
+cis_firewall: true
+cis_banner: true
