@@ -1,15 +1,16 @@
 ---
 # Filesystem Hardening - CIS 1.1.x
+# Uses ansible.posix.mount instead of raw `command` — the module
+# compares current mount options before remounting, so re-running
+# the role is safe and reports changed=0.
 
 - name: Filesystem | Harden /tmp mount options
-  ansible.builtin.lineinfile:
-    path: /etc/fstab
-    regexp: '^\S+\s+/tmp\s'
-    line: 'tmpfs /tmp tmpfs rw,nosuid,nodev,noexec 0 0'
-    create: true
-
-- name: Filesystem | Apply /tmp options immediately
-  ansible.builtin.command: mount -o remount,nosuid,nodev,noexec /tmp
+  ansible.posix.mount:
+    path: /tmp
+    src: tmpfs
+    fstype: tmpfs
+    opts: rw,nosuid,nodev,noexec
+    state: mounted
 
 - name: Filesystem | Create /var/tmp bind mount entry
   ansible.builtin.lineinfile:
@@ -19,15 +20,17 @@
     create: true
 
 - name: Filesystem | Apply /var/tmp bind mount
-  ansible.builtin.command: mount /var/tmp
-  ignore_errors: true
+  ansible.posix.mount:
+    path: /var/tmp
+    src: /tmp
+    fstype: none
+    opts: bind,nosuid,nodev,noexec
+    state: mounted
 
 - name: Filesystem | Harden /dev/shm mount options
-  ansible.builtin.lineinfile:
-    path: /etc/fstab
-    regexp: '^\S+\s+/dev/shm\s'
-    line: 'tmpfs /dev/shm tmpfs rw,nosuid,nodev,noexec 0 0'
-    create: true
-
-- name: Filesystem | Apply /dev/shm options immediately
-  ansible.builtin.command: mount -o remount,nosuid,nodev,noexec /dev/shm
+  ansible.posix.mount:
+    path: /dev/shm
+    src: tmpfs
+    fstype: tmpfs
+    opts: rw,nosuid,nodev,noexec
+    state: mounted

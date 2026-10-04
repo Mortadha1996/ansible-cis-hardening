@@ -21,20 +21,18 @@ The compliance script checks the system independently of the playbook. A green `
 ```
 $ ansible-playbook site.yml | tail -3
 PLAY RECAP
-worker1 : ok=31  changed=3  unreachable=0  failed=0
+worker1 : ok=29  changed=0  unreachable=0  failed=0  skipped=0
 
-$ ansible-playbook site.yml --check --diff | tail -3
+$ ansible-playbook site.yml | tail -3
 PLAY RECAP
-worker1 : ok=28  changed=0  unreachable=0  failed=0
+worker1 : ok=29  changed=0  unreachable=0  failed=0  skipped=0
 ```
 
-Second run: `changed=0`. Nothing to do, because everything is already in the target state.
+Zero changes on every run. That's idempotence, and it's the property that separates a role from a script. A script you run once. A role reporting `changed=0` is one you can schedule hourly and forget about — and if it ever reports changes, something drifted and you want to know.
 
-This is the property that makes automation safe to schedule. A role you can only run once is a script. A role you can run every hour is a control.
+Getting there required replacing three `command: mount -o remount` tasks with `ansible.posix.mount`. The `command` module cannot know whether the remount is already in effect, so it reported `changed=3` on every run. The `mount` module compares current mount options against the desired ones and only acts when they differ.
 
-The 3 `changed` on the first run come from the three `command` tasks in the filesystem block (`mount -o remount`). `command` is not idempotent by nature — the fstab entries themselves are. To make them fully idempotent, wrap them in a `when` that checks the current mount options.
-
----
+```
 
 ## What it covers
 
